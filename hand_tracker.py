@@ -1,6 +1,23 @@
+import importlib.util
 import math
+import subprocess
+import sys
 import time
 from pathlib import Path
+
+REQUIRED = {"cv2": "opencv-python", "mediapipe": "mediapipe", "numpy": "numpy"}
+
+
+def ensure_dependencies():
+    missing = [pkg for mod, pkg in REQUIRED.items()
+               if importlib.util.find_spec(mod) is None]
+    if not missing:
+        return
+    print(f"Installing missing dependencies: {', '.join(missing)}")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+
+
+ensure_dependencies()
 
 import cv2
 import mediapipe as mp
