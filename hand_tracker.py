@@ -1,5 +1,6 @@
 import importlib.util
 import math
+import os
 import subprocess
 import sys
 import time
@@ -38,6 +39,39 @@ TIP_IDS = (4, 8, 12, 16, 20)
 CLAP_CLOSE_RATIO = 0.18
 CLAP_COOLDOWN_S = 0.8
 
+# Camera selection: DroidCam is not always camera 0. Override with the
+# HAND_TRACKER_CAMERA env var or by passing an index on the command line.
+DEFAULT_BACKEND = cv2.CAP_DSHOW
+CAMERA_CANDIDATES = (2, 0, 1, 3, 4)
+
+
+def open_camera(explicit_index=None):
+    """Open a camera that actually delivers frames.
+
+    On Windows a device can report isOpened() yet never yield a frame, so we
+    verify with a real read() before accepting it.
+    """
+    if explicit_index is None and len(sys.argv) > 1:
+        explicit_index = int(sys.argv[1])
+    if explicit_index is None:
+        env = os.environ.get("HAND_TRACKER_CAMERA")
+        if env is not None:
+            explicit_index = int(env)
+
+    indices = [explicit_index] if explicit_index is not None else CAMERA_CANDIDATES
+    for index in indices:
+        cap = cv2.VideoCapture(index, DEFAULT_BACKEND)
+        if cap.isOpened() and cap.read()[0]:
+            print(f"Opened camera index {index} (DirectShow)")
+            return cap
+        cap.release()
+
+    raise SystemExit(
+        f"Could not open a working camera (tried {list(indices)}).\n"
+        "Pass the index as an argument, e.g. `python hand_tracker.py 2`, "
+        "or set HAND_TRACKER_CAMERA."
+    )
+
 
 def palm_center(landmarks):
     xs = [lm.x for lm in landmarks]
@@ -56,10 +90,7 @@ def main():
     )
     landmarker = vision.HandLandmarker.create_from_options(options)
 
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        raise SystemExit("Could not open camera 0")
-
+    cap = open_camera()
     print("Hand tracker running. Press 'q' or ESC in the video window to quit.")
 
     hands_were_together = False
