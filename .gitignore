@@ -1,2 +1,16 @@
 __pycache__/
 *.pyc
+*.pyo
+
+# Output produced by the app
+recordings/
+*.mp4
+*.avi
+landmarks-*.csv
+landmarks-*.json
+snapshot-*.png
+
+# Packaging
+build/
+dist/
+*.egg-info/

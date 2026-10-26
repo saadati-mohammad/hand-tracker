@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hand-tracker"
+version = "1.0.0"
+description = "Real-time full-body tracking: pose, hands, face, gestures and stats"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python>=4.9",
+    "mediapipe>=0.10",
+    "numpy>=1.24",
+]
+
+[project.scripts]
+hand-tracker = "hand_tracker.__main__:main"
+
+[tool.setuptools]
+packages = ["hand_tracker"]
+
+[tool.setuptools.package-data]
+hand_tracker = []
+
+[tool.setuptools.data-files]
+# The .task models and face-mesh JSON are ~17 MB, so they are declared as
+# data files at the project root rather than inside the package. From a
+# source checkout or a PyInstaller bundle they are found via paths.asset().
+"." = [
+    "assets/face_landmarker.task",
+    "assets/hand_landmarker.task",
+    "assets/pose_landmarker_lite.task",
+    "assets/face_mesh_connections.json",
+]

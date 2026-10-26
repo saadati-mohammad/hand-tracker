@@ -1,0 +1,6 @@
+# Runtime dependencies for hand_tracker.
+# OpenCV must be the full build (not opencv-python-headless) so that
+# cv2.imshow and the mp4v/MJPG video writers are available.
+opencv-python>=4.9
+mediapipe>=0.10
+numpy>=1.24
